@@ -6,7 +6,8 @@ const API_URL =
 const FetchData = () => {
   const [retrieved, setRetrieved] = useState(false);
   const [data, setData] = useState(null);
-  if (!retrieved) {
+  const sendRequest = async () => {
+    setRetrieved(false);
     axios
       .get(API_URL)
       .then((response) => {
@@ -16,15 +17,19 @@ const FetchData = () => {
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
-  }
+  };
+
   useEffect(() => {
-    const output = retrieved ? (
-      <div>Data retrieved: {JSON.stringify(data)}</div>
-    ) : (
-      <div>Fetching data...</div>
-    );
-    return output;
-  }, [retrieved, data]);
+    sendRequest();
+    const timer = setInterval(sendRequest, 10000);
+    return () => clearInterval(timer);
+  }, []);
+  const output = retrieved ? (
+    <div>Data retrieved: {JSON.stringify(data)}</div>
+  ) : (
+    <div>Fetching data...</div>
+  );
+  return output;
 };
 
 export default FetchData;
