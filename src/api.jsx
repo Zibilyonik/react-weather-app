@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const FetchData = (latitude = 0, longitude = 0, forecastDays = 1, hourlyParams) => {
+const FetchData = ({ latitude, longitude, forecastDays, hourlyParams }) => {
   const [retrieved, setRetrieved] = useState(false);
   const [data, setData] = useState(null);
-  const hourlyParamsString = hourlyParams.join(",");
   const API_URL =
-  `https://api.open-meteo.com/v1/gem?latitude=${latitude}&longitude=${longitude}&hourly=${hourlyParamsString}&forecast_days=${forecastDays}`;
+  `https://api.open-meteo.com/v1/gem?latitude=${latitude}&longitude=${longitude}&hourly=${hourlyParams.join(",")}&forecast_days=${forecastDays}`;
   const sendRequest = async () => {
     setRetrieved(false);
     axios
@@ -24,7 +23,7 @@ const FetchData = (latitude = 0, longitude = 0, forecastDays = 1, hourlyParams) 
     sendRequest();
     const timer = setInterval(sendRequest, 10000);
     return () => clearInterval(timer);
-  }, []);
+  }, [latitude, longitude, forecastDays, hourlyParams]);
   const output = retrieved ? (
     <div>Data retrieved: {JSON.stringify(data)}</div>
   ) : (
