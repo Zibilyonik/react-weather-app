@@ -1,11 +1,11 @@
 import './App.css';
 import React from 'react';
-import FetchData from './api';
+import Display from './Display';
 
 function App() {
   return (
     <div className="App">
-        <FetchData />
+        <Display />
     </div>
   );
 }
