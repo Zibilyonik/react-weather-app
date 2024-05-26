@@ -19,6 +19,12 @@ const Display = () => {
   const onHourlyParamsChange = (value) => {
     setHourlyParams(value);
   };
+  const onSearch = (value) => {
+    console.log("search:", value);
+  };
+  const filterOption = (input, option) => {
+    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  };
   return (
     <div>
       <div>
@@ -39,6 +45,33 @@ const Display = () => {
           onChange={onLongitudeChange}
         />
       </div>
+      <Select
+        showSearch
+        placeholder="Select a person"
+        optionFilterProp="children"
+        onChange={(value) => {
+          value = value.split(",");
+          console.log("value:", value);
+          setLatitude(value[0]);
+          setLongitude(value[1]);
+        }}
+        onSearch={onSearch}
+        filterOption={filterOption}
+        options={[
+          {
+            value: "52.52,13.41",
+            label: "Jack",
+          },
+          {
+            value: "lucy",
+            label: "Lucy",
+          },
+          {
+            value: "tom",
+            label: "Tom",
+          },
+        ]}
+      />
       <div>
         <label>Forecast days: </label>
         <Select value={forecastDays} onChange={onForecastDaysChange}>
