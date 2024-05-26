@@ -4,19 +4,21 @@ import axios from "axios";
 const FetchData = ({ latitude, longitude, forecastDays, hourlyParams }) => {
   const [retrieved, setRetrieved] = useState(false);
   const [data, setData] = useState(null);
-  const API_URL =
-  `https://api.open-meteo.com/v1/gem?latitude=${latitude}&longitude=${longitude}&hourly=${hourlyParams.join(",")}&forecast_days=${forecastDays}`;
+  const [error, setError] = useState(false);
+  const API_URL = `https://api.open-meteo.com/v1/gem?latitude=${latitude}&longitude=${longitude}&hourly=${hourlyParams.join(
+    ","
+  )}&forecast_days=${forecastDays}`;
   const sendRequest = async () => {
     setRetrieved(false);
-    axios
-      .get(API_URL)
-      .then((response) => {
-        setData(response.data);
-        setRetrieved(true);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
+    try {
+      const response = await axios.get(API_URL);
+      setData(response.data);
+      setRetrieved(true);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+      setRetrieved(false);
+      setError(true);
+    }
   };
 
   useEffect(() => {
@@ -29,7 +31,7 @@ const FetchData = ({ latitude, longitude, forecastDays, hourlyParams }) => {
   ) : (
     <div>Fetching data...</div>
   );
-  return output;
+  return error ? <div>Error fetching data</div> : output;
 };
 
 export default FetchData;
