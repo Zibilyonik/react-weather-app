@@ -1,6 +1,7 @@
 import FetchData from "./api";
 import React, { useState } from "react";
 import { Select, Checkbox, Input } from "antd";
+import cityOptions from "./cityOptions";
 
 const Display = () => {
   const [latitude, setLatitude] = useState("0");
@@ -47,7 +48,7 @@ const Display = () => {
       </div>
       <Select
         showSearch
-        placeholder="Select a person"
+        placeholder="Select a city"
         optionFilterProp="children"
         onChange={(value) => {
           value = value.split(",");
@@ -57,20 +58,7 @@ const Display = () => {
         }}
         onSearch={onSearch}
         filterOption={filterOption}
-        options={[
-          {
-            value: "52.52,13.41",
-            label: "Jack",
-          },
-          {
-            value: "lucy",
-            label: "Lucy",
-          },
-          {
-            value: "tom",
-            label: "Tom",
-          },
-        ]}
+        options={cityOptions}
       />
       <div>
         <label>Forecast days: </label>
