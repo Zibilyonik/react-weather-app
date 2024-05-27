@@ -1,7 +1,7 @@
 import useFetchData from "./api";
 import React, { useEffect, useState } from "react";
 import { Select, Checkbox, Input } from "antd";
-import { Line } from "@ant-design/charts";
+import { DualAxes } from "@ant-design/charts";
 import cityOptions from "./cityOptions";
 
 const Display = () => {
@@ -15,8 +15,46 @@ const Display = () => {
     forecastDays,
     hourlyParams,
   });
+  const [lineProps, setLineProps] = useState({});
   useEffect(() => {
-    console.log("data:", data);
+    if (data.hourly) {
+      const hourData = data.hourly.time || [];
+      const rainData = data.hourly.rain || [];
+      const temperatureData = data.hourly.temperature_2m || [];
+
+      setLineProps({
+        xField: "hour",
+        data: hourData.map((hour, index) => ({
+          hour: hour,
+          temperature: temperatureData[index],
+          rain: rainData[index],
+        })),
+        legend: {
+          position: "top-right",
+          color: {
+            itemMarker: (v) => {
+              if (v === "rain") return "rect";
+              return "smooth";
+            },
+          },
+        },
+        children: [
+          {
+            type: "interval",
+            yField: "rain",
+            axis: { y: { position: "right" } },
+          },
+          {
+            type: "area",
+            yField: "temperature",
+            shapeField: "smooth",
+            scale: { color: { relations: [["temperature", "#fdae6b"]] } },
+            axis: { y: { position: "left" } },
+            areaStyle: () => ({ fill: "#fdae6b"}),
+          },
+        ],
+      });
+    }
   }, [data]);
   const onLatitudeChange = (e) => {
     setLatitude(e.target.value);
@@ -88,26 +126,9 @@ const Display = () => {
           <Checkbox value="rain">Rain</Checkbox>
         </Checkbox.Group>
       </div>
-      {data && data !== "waiting for data..." ? (
-        <div>
-          <Line
-            data={data}
-            xField="time"
-            yField="temperature_2m"
-            seriesField="city"
-            color={["#1979C9", "#D62A0D"]}
-            point={{ size: 5, shape: "diamond" }}
-            label={{
-              style: {
-                fill: "#1979C9",
-                fontSize: 14,
-              },
-            }}
-          />
-        </div>
-      ) : (
-        <div>Fetching data...</div>
-      )}
+      <div>
+        <DualAxes {...lineProps} />
+      </div>
     </div>
   );
 };
