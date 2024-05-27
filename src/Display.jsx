@@ -1,6 +1,7 @@
-import FetchData from "./api";
-import React, { useState } from "react";
+import useFetchData from "./api";
+import React, { useEffect, useState } from "react";
 import { Select, Checkbox, Input } from "antd";
+import { Line } from "@ant-design/charts";
 import cityOptions from "./cityOptions";
 
 const Display = () => {
@@ -8,6 +9,15 @@ const Display = () => {
   const [longitude, setLongitude] = useState("0");
   const [forecastDays, setForecastDays] = useState("1");
   const [hourlyParams, setHourlyParams] = useState([]);
+  const data = useFetchData({
+    latitude,
+    longitude,
+    forecastDays,
+    hourlyParams,
+  });
+  useEffect(() => {
+    console.log("data:", data);
+  }, [data]);
   const onLatitudeChange = (e) => {
     setLatitude(e.target.value);
   };
@@ -78,12 +88,26 @@ const Display = () => {
           <Checkbox value="rain">Rain</Checkbox>
         </Checkbox.Group>
       </div>
-      <FetchData
-        latitude={latitude}
-        longitude={longitude}
-        forecastDays={forecastDays}
-        hourlyParams={hourlyParams}
-      />
+      {data && data !== "waiting for data..." ? (
+        <div>
+          <Line
+            data={data}
+            xField="time"
+            yField="temperature_2m"
+            seriesField="city"
+            color={["#1979C9", "#D62A0D"]}
+            point={{ size: 5, shape: "diamond" }}
+            label={{
+              style: {
+                fill: "#1979C9",
+                fontSize: 14,
+              },
+            }}
+          />
+        </div>
+      ) : (
+        <div>Fetching data...</div>
+      )}
     </div>
   );
 };
