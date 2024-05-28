@@ -20,7 +20,7 @@ const useFetchData = ({ latitude, longitude, forecastDays, hourlyParams }) => {
 
   useEffect(() => {
     sendRequest();
-    const timer = setInterval(sendRequest, 10000);
+    const timer = setInterval(sendRequest, 60000);
     return () => clearInterval(timer);
   }, [latitude, longitude, forecastDays, hourlyParams]);
   return data;
