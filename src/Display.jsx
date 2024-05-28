@@ -18,6 +18,14 @@ const Display = () => {
   });
   const [lineProps, setLineProps] = useState({});
   useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setLatitude(position.coords.latitude.toFixed(2));
+        setLongitude(position.coords.longitude.toFixed(2));
+      });
+    }
+  }, []);
+  useEffect(() => {
     setLoaded(false);
     if (data.hourly) {
       const hourData = data.hourly.time || [];
@@ -116,7 +124,6 @@ const Display = () => {
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
-        defaultValue={"41.02,28.98"}
         onChange={(value) => {
           value = value.split(",");
           console.log("value:", value);
