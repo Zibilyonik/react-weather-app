@@ -1,6 +1,6 @@
-import useFetchData from "./api";
+import useFetchData from "./useFetchData";
 import React, { useEffect, useState } from "react";
-import { Select, Checkbox, Input } from "antd";
+import { Select, Checkbox, Input, Alert } from "antd";
 import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
 
@@ -10,7 +10,7 @@ const Display = () => {
   const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
-  const data = useFetchData({
+  const [data, error] = useFetchData({
     latitude,
     longitude,
     forecastDays,
@@ -45,8 +45,13 @@ const Display = () => {
           {
             type: "interval",
             yField: "rain",
-            axis: { y: { position: "right", title: "Precipitation (mm)",
-            titleFill: "#123456", } },
+            axis: {
+              y: {
+                position: "right",
+                title: "Precipitation (mm)",
+                titleFill: "#123456",
+              },
+            },
             scale: { y: { domainMax: Math.max(1, ...rainData) } },
             style: { fill: "#123456" },
           },
@@ -141,7 +146,18 @@ const Display = () => {
         </Checkbox.Group>
       </div>
       <div>
-        {loaded ? <DualAxes {...lineProps} /> : <div>Waiting for data...</div>}
+        {error ? (
+          <Alert
+            message={error.message}
+            description={`Error fetching data: ${error.response.status} ${error.response.statusText}`}
+            type="error"
+            closable
+          />
+        ) : loaded ? (
+          <DualAxes {...lineProps} />
+        ) : (
+          <div>Waiting for data...</div>
+        )}
       </div>
     </div>
   );
