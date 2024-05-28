@@ -5,10 +5,10 @@ import { DualAxes } from "@ant-design/charts";
 import cityOptions from "./cityOptions";
 
 const Display = () => {
-  const [latitude, setLatitude] = useState("0");
-  const [longitude, setLongitude] = useState("0");
+  const [latitude, setLatitude] = useState("41.02");
+  const [longitude, setLongitude] = useState("28.98");
   const [forecastDays, setForecastDays] = useState("1");
-  const [hourlyParams, setHourlyParams] = useState([]);
+  const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
   const data = useFetchData({
     latitude,
     longitude,
@@ -43,14 +43,15 @@ const Display = () => {
             type: "interval",
             yField: "rain",
             axis: { y: { position: "right" } },
+            scale: { min: 0, max: Math.max(...rainData) + 1 },
           },
           {
-            type: "area",
+            type: "line",
             yField: "temperature",
             shapeField: "smooth",
             scale: { color: { relations: [["temperature", "#fdae6b"]] } },
             axis: { y: { position: "left" } },
-            areaStyle: () => ({ fill: "#fdae6b"}),
+            style: { lineWidth: 5 },
           },
         ],
       });
@@ -98,6 +99,7 @@ const Display = () => {
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
+        defaultValue={"41.02,28.98"}
         onChange={(value) => {
           value = value.split(",");
           console.log("value:", value);
@@ -127,7 +129,11 @@ const Display = () => {
         </Checkbox.Group>
       </div>
       <div>
-        <DualAxes {...lineProps} />
+        {latitude !== "0" && longitude !== "0" ? (
+          <DualAxes {...lineProps} />
+        ) : (
+          <div>Waiting for data...</div>
+        )}
       </div>
     </div>
   );
