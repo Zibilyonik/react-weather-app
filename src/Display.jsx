@@ -91,7 +91,7 @@ const Display = () => {
             axis: {
               y: {
                 position: "left",
-                title: "temperature (C)",
+                title: "temperature (°C)",
                 titleFill: "#fdae6b",
               },
             },
@@ -104,13 +104,13 @@ const Display = () => {
   }, [data]);
   return (
     <Container>
+      <StyledLabel>City: </StyledLabel>
       <StyledSelect
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
         onChange={(value) => {
           value = value.split(",");
-          console.log("value:", value);
           setLatitude(value[0]);
           setLongitude(value[1]);
         }}
