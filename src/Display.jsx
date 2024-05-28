@@ -1,12 +1,13 @@
 import useFetchData from "./api";
 import React, { useEffect, useState } from "react";
 import { Select, Checkbox, Input } from "antd";
-import { DualAxes } from "@ant-design/charts";
+import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
 
 const Display = () => {
   const [latitude, setLatitude] = useState("41.02");
   const [longitude, setLongitude] = useState("28.98");
+  const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
   const data = useFetchData({
@@ -17,6 +18,7 @@ const Display = () => {
   });
   const [lineProps, setLineProps] = useState({});
   useEffect(() => {
+    setLoaded(false);
     if (data.hourly) {
       const hourData = data.hourly.time || [];
       const rainData = data.hourly.rain || [];
@@ -30,7 +32,7 @@ const Display = () => {
           rain: rainData[index],
         })),
         legend: {
-          position: "top-right",
+          position: "top-left",
           color: {
             itemMarker: (v) => {
               if (v === "rain") return "rect";
@@ -38,26 +40,36 @@ const Display = () => {
             },
           },
         },
+        scale: { y: { nice: true } },
         children: [
           {
             type: "interval",
             yField: "rain",
-            axis: { y: { position: "right" } },
-            scale: { min: 0, max: Math.max(...rainData) + 1 },
+            axis: { y: { position: "right", title: "Precipitation (mm)",
+            titleFill: "#123456", } },
+            scale: { y: { domainMax: Math.max(1, ...rainData) } },
+            style: { fill: "#123456" },
           },
           {
             type: "line",
             yField: "temperature",
             shapeField: "smooth",
-            scale: { color: { relations: [["temperature", "#fdae6b"]] } },
-            axis: { y: { position: "left" } },
-            style: { lineWidth: 5 },
+            axis: {
+              y: {
+                position: "left",
+                title: "temperature (C)",
+                titleFill: "#fdae6b",
+              },
+            },
+            style: { lineWidth: 5, stroke: "#fdae6b" },
           },
         ],
       });
+      setLoaded(true);
     }
   }, [data]);
   const onLatitudeChange = (e) => {
+    setLoaded(false);
     setLatitude(e.target.value);
   };
   const onLongitudeChange = (e) => {
@@ -129,11 +141,7 @@ const Display = () => {
         </Checkbox.Group>
       </div>
       <div>
-        {latitude !== "0" && longitude !== "0" ? (
-          <DualAxes {...lineProps} />
-        ) : (
-          <div>Waiting for data...</div>
-        )}
+        {loaded ? <DualAxes {...lineProps} /> : <div>Waiting for data...</div>}
       </div>
     </div>
   );
