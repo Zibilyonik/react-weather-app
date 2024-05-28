@@ -1,6 +1,13 @@
 import useFetchData from "./useFetchData";
 import React, { useEffect, useState } from "react";
-import { Select, Checkbox, Input, Alert } from "antd";
+import { Checkbox, Select, Alert } from "antd";
+import {
+  Container,
+  StyledSelect,
+  Section,
+  DisplaySection,
+  StyledLabel,
+} from "./Display.styles";
 import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
 
@@ -17,13 +24,6 @@ const Display = () => {
     forecastDays,
     hourlyParams,
   });
-  const onLatitudeChange = (e) => {
-    setLoaded(false);
-    setLatitude(e.target.value);
-  };
-  const onLongitudeChange = (e) => {
-    setLongitude(e.target.value);
-  };
   const onForecastDaysChange = (value) => {
     setForecastDays(value);
   };
@@ -56,6 +56,7 @@ const Display = () => {
           rain: rainData[index],
         })),
         legend: {
+          visible: true,
           position: "top-left",
           color: {
             itemMarker: (v) => {
@@ -66,19 +67,23 @@ const Display = () => {
         },
         scale: { y: { nice: true } },
         children: [
-          {
-            type: "interval",
-            yField: "rain",
-            axis: {
-              y: {
-                position: "right",
-                title: "Precipitation (mm)",
-                titleFill: "#123456",
-              },
-            },
-            scale: { y: { domainMax: Math.max(1, ...rainData) } },
-            style: { fill: "#123456" },
-          },
+          ...(hourlyParams.includes("rain")
+            ? [
+                {
+                  type: "interval",
+                  yField: "rain",
+                  axis: {
+                    y: {
+                      position: "right",
+                      title: "Precipitation (mm)",
+                      titleFill: "#123456",
+                    },
+                  },
+                  scale: { y: { domainMax: Math.max(1, ...rainData) } },
+                  style: { fill: "#123456" },
+                },
+              ]
+            : []),
           {
             type: "line",
             yField: "temperature",
@@ -98,26 +103,8 @@ const Display = () => {
     }
   }, [data]);
   return (
-    <div>
-      <div>
-        <label>Latitude: </label>
-        <Input
-          type="number"
-          size="small"
-          value={latitude}
-          onChange={onLatitudeChange}
-        />
-      </div>
-      <div>
-        <label>Longitude: </label>
-        <Input
-          type="number"
-          size="small"
-          value={longitude}
-          onChange={onLongitudeChange}
-        />
-      </div>
-      <Select
+    <Container>
+      <StyledSelect
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
@@ -130,39 +117,39 @@ const Display = () => {
         filterOption={filterOption}
         options={cityOptions}
       />
-      <div>
-        <label>Forecast days: </label>
-        <Select value={forecastDays} onChange={onForecastDaysChange}>
+      <Section>
+        <StyledLabel>Forecast days: </StyledLabel>
+        <StyledSelect value={forecastDays} onChange={onForecastDaysChange}>
           <Select.Option default value={"1"}>
             1 (Default)
           </Select.Option>
           <Select.Option value={3}>3</Select.Option>
           <Select.Option value={5}>5</Select.Option>
           <Select.Option value={7}>7</Select.Option>
-        </Select>
-      </div>
-      <div>
-        <label>Hourly parameters: </label>
+        </StyledSelect>
+      </Section>
+      <Section>
+        <StyledLabel>Hourly parameters: </StyledLabel>
         <Checkbox.Group value={hourlyParams} onChange={onHourlyParamsChange}>
           <Checkbox value="temperature_2m">Temperature</Checkbox>
           <Checkbox value="rain">Rain</Checkbox>
         </Checkbox.Group>
-      </div>
-      <div>
+      </Section>
+      <DisplaySection>
         {error ? (
           <Alert
             message={error.message}
-            description={`Error fetching data: ${error.response.status} ${error.response.statusText}`}
+            description={`Error fetching data: ${error.status} ${error.statusText}`}
             type="error"
             closable
           />
         ) : loaded ? (
           <DualAxes {...lineProps} />
         ) : (
-          <div>Waiting for data...</div>
+          <Section>Waiting for data...</Section>
         )}
-      </div>
-    </div>
+      </DisplaySection>
+    </Container>
   );
 };
 
