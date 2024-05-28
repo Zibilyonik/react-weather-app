@@ -10,13 +10,29 @@ const Display = () => {
   const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
+  const [lineProps, setLineProps] = useState({});
   const [data, error] = useFetchData({
     latitude,
     longitude,
     forecastDays,
     hourlyParams,
   });
-  const [lineProps, setLineProps] = useState({});
+  const onLatitudeChange = (e) => {
+    setLoaded(false);
+    setLatitude(e.target.value);
+  };
+  const onLongitudeChange = (e) => {
+    setLongitude(e.target.value);
+  };
+  const onForecastDaysChange = (value) => {
+    setForecastDays(value);
+  };
+  const onHourlyParamsChange = (value) => {
+    setHourlyParams(value);
+  };
+  const filterOption = (input, option) => {
+    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  };
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -81,25 +97,6 @@ const Display = () => {
       setLoaded(true);
     }
   }, [data]);
-  const onLatitudeChange = (e) => {
-    setLoaded(false);
-    setLatitude(e.target.value);
-  };
-  const onLongitudeChange = (e) => {
-    setLongitude(e.target.value);
-  };
-  const onForecastDaysChange = (value) => {
-    setForecastDays(value);
-  };
-  const onHourlyParamsChange = (value) => {
-    setHourlyParams(value);
-  };
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
-  const filterOption = (input, option) => {
-    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-  };
   return (
     <div>
       <div>
@@ -130,7 +127,6 @@ const Display = () => {
           setLatitude(value[0]);
           setLongitude(value[1]);
         }}
-        onSearch={onSearch}
         filterOption={filterOption}
         options={cityOptions}
       />
