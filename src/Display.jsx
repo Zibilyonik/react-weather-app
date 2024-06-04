@@ -10,6 +10,7 @@ import {
 } from "./Display.styles";
 import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
+import { useHistory } from "react-router-dom";
 
 const Display = () => {
   const [latitude, setLatitude] = useState("41.02");
@@ -17,6 +18,7 @@ const Display = () => {
   const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
+  const history = useHistory();
   const [lineProps, setLineProps] = useState({});
   const [data, error] = useFetchData({
     latitude,
@@ -29,6 +31,7 @@ const Display = () => {
   };
   const onHourlyParamsChange = (value) => {
     setHourlyParams(value);
+    history.push(`${history.location.pathname}?hourlyParams=${value.join(",")}`)
   };
   const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -109,10 +112,11 @@ const Display = () => {
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
-        onChange={(value) => {
+        onChange={(value, option) => {
           value = value.split(",");
           setLatitude(value[0]);
           setLongitude(value[1]);
+          history.push(`/${option.label.toLowerCase().replace(" ", "-")}`)
         }}
         filterOption={filterOption}
         options={cityOptions}
