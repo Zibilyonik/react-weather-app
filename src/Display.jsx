@@ -10,15 +10,16 @@ import {
 } from "./Display.styles";
 import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Display = () => {
   const [latitude, setLatitude] = useState("41.02");
   const [longitude, setLongitude] = useState("28.98");
   const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
+  const [city, setCity] = useState("istanbul");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [lineProps, setLineProps] = useState({});
   const [data, error] = useFetchData({
     latitude,
@@ -31,7 +32,7 @@ const Display = () => {
   };
   const onHourlyParamsChange = (value) => {
     setHourlyParams(value);
-    history.push(`${history.location.pathname}?hourlyParams=${value.join(",")}`)
+    navigate(`${city}?options=${value.join(",")}`);
   };
   const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -116,7 +117,9 @@ const Display = () => {
           value = value.split(",");
           setLatitude(value[0]);
           setLongitude(value[1]);
-          history.push(`/${option.label.toLowerCase().replace(" ", "-")}`)
+          const newCity = option.label.toLowerCase();
+          setCity(newCity);
+          navigate(`/${newCity}?options=${hourlyParams.join(",")}`);
         }}
         filterOption={filterOption}
         options={cityOptions}
