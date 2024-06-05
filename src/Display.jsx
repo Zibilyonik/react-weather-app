@@ -55,6 +55,7 @@ const Display = () => {
       const hourData = data.hourly.time || [];
       const rainData = data.hourly.rain || [];
       const temperatureData = data.hourly.temperature_2m || [];
+      const humidityData = data.hourly.relative_humidity_2m || [];
 
       setLineProps({
         xField: "hour",
@@ -62,6 +63,7 @@ const Display = () => {
           hour: hour,
           temperature: temperatureData[index],
           rain: rainData[index],
+          humidity: humidityData[index],
         })),
         legend: {
           visible: true,
@@ -89,6 +91,23 @@ const Display = () => {
                   },
                   scale: { y: { domainMax: Math.max(1, ...rainData) } },
                   style: { fill: "#123456" },
+                },
+              ]
+            : []),
+          ...(hourlyParams.includes("relative_humidity_2m")
+            ? [
+                {
+                  type: "area",
+                  yField: "humidity",
+                  shapeField: "smooth",
+                  axis: {
+                    y: {
+                      position: "right",
+                      title: "Humidity (%)",
+                      titleFill: "#abcdef",
+                    },
+                  },
+                  style: { lineWidth: 1, stroke: "#abcdef", fillOpacity: 0.2},
                 },
               ]
             : []),
@@ -144,6 +163,7 @@ const Display = () => {
         <Checkbox.Group value={hourlyParams} onChange={onHourlyParamsChange}>
           <Checkbox value="temperature_2m">Temperature</Checkbox>
           <Checkbox value="rain">Rain</Checkbox>
+          <Checkbox value="relative_humidity_2m">Humidity</Checkbox>
         </Checkbox.Group>
       </Section>
       <DisplaySection>
