@@ -32,7 +32,7 @@ const Display = () => {
   };
   const onHourlyParamsChange = (value) => {
     setHourlyParams(value);
-    navigate(`${city}?options=${value.join(",")}`);
+    navigate(`/${city}${value.length === 0 ? '' : `?options=${value.join(",")}`}`);
   };
   const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
