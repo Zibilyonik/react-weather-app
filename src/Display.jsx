@@ -105,7 +105,7 @@ const Display = () => {
       });
       setLoaded(true);
     }
-  }, [data]);
+  }, [data, hourlyParams]);
   return (
     <Container>
       <StyledLabel>City: </StyledLabel>
