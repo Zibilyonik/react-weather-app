@@ -22,6 +22,7 @@ const useFetchData = ({ latitude, longitude, forecastDays, hourlyParams }) => {
     sendRequest();
     const timer = setInterval(sendRequest, 60000);
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latitude, longitude, forecastDays, hourlyParams]);
   return [data, error];
 };

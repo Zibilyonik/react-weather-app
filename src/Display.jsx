@@ -10,13 +10,16 @@ import {
 } from "./Display.styles";
 import { DualAxes } from "@ant-design/plots";
 import cityOptions from "./cityOptions";
+import { useNavigate } from "react-router-dom";
 
 const Display = () => {
   const [latitude, setLatitude] = useState("41.02");
   const [longitude, setLongitude] = useState("28.98");
   const [loaded, setLoaded] = useState(false);
   const [forecastDays, setForecastDays] = useState("1");
+  const [city, setCity] = useState("istanbul");
   const [hourlyParams, setHourlyParams] = useState(["temperature_2m", "rain"]);
+  const navigate = useNavigate();
   const [lineProps, setLineProps] = useState({});
   const [data, error] = useFetchData({
     latitude,
@@ -29,6 +32,11 @@ const Display = () => {
   };
   const onHourlyParamsChange = (value) => {
     setHourlyParams(value);
+    navigate(
+      `/${city}${
+        value.length === 0 ? "" : `?options=${value.join(",")}`
+      }&forecast_days=${forecastDays}`
+    );
   };
   const filterOption = (input, option) => {
     return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -47,6 +55,7 @@ const Display = () => {
       const hourData = data.hourly.time || [];
       const rainData = data.hourly.rain || [];
       const temperatureData = data.hourly.temperature_2m || [];
+      const humidityData = data.hourly.relative_humidity_2m || [];
 
       setLineProps({
         xField: "hour",
@@ -54,6 +63,7 @@ const Display = () => {
           hour: hour,
           temperature: temperatureData[index],
           rain: rainData[index],
+          humidity: humidityData[index],
         })),
         legend: {
           visible: true,
@@ -84,6 +94,23 @@ const Display = () => {
                 },
               ]
             : []),
+          ...(hourlyParams.includes("relative_humidity_2m")
+            ? [
+                {
+                  type: "area",
+                  yField: "humidity",
+                  shapeField: "smooth",
+                  axis: {
+                    y: {
+                      position: "right",
+                      title: "Humidity (%)",
+                      titleFill: "#abcdef",
+                    },
+                  },
+                  style: { lineWidth: 1, stroke: "#abcdef", fillOpacity: 0.2},
+                },
+              ]
+            : []),
           {
             type: "line",
             yField: "temperature",
@@ -101,7 +128,7 @@ const Display = () => {
       });
       setLoaded(true);
     }
-  }, [data]);
+  }, [data, hourlyParams]);
   return (
     <Container>
       <StyledLabel>City: </StyledLabel>
@@ -109,10 +136,13 @@ const Display = () => {
         showSearch
         placeholder="Select a city"
         optionFilterProp="children"
-        onChange={(value) => {
+        onChange={(value, option) => {
           value = value.split(",");
           setLatitude(value[0]);
           setLongitude(value[1]);
+          const newCity = option.label.toLowerCase();
+          setCity(newCity);
+          navigate(`/${newCity}?options=${hourlyParams.join(",")}`);
         }}
         filterOption={filterOption}
         options={cityOptions}
@@ -133,6 +163,7 @@ const Display = () => {
         <Checkbox.Group value={hourlyParams} onChange={onHourlyParamsChange}>
           <Checkbox value="temperature_2m">Temperature</Checkbox>
           <Checkbox value="rain">Rain</Checkbox>
+          <Checkbox value="relative_humidity_2m">Humidity</Checkbox>
         </Checkbox.Group>
       </Section>
       <DisplaySection>
